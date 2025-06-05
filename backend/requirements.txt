@@ -1,0 +1,14 @@
+python-telegram-bot==20.7
+Flask==3.0.3
+SQLAlchemy==2.0.30
+psycopg2-binary==2.9.9
+python-dotenv==1.0.1
+Flask-SQLAlchemy==3.1.1
+Flask-Cors==4.0.0
+gunicorn==21.2.0
+alembic==1.13.1
+TELEGRAM_TOKEN=your_telegram_token
+DATABASE_URL=postgresql://coffee_user:your_password@localhost:5432/coffee_bot
+FLASK_ENV=development
+FLASK_APP=main.py
+SECRET_KEY=your_secret_key 
