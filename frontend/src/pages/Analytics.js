@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Bar } from 'react-chartjs-2';
+import {
+  Grid,
+  Paper,
+  Typography,
+  Box,
+  Card,
+  CardContent,
+} from '@mui/material';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -7,8 +14,9 @@ import {
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
 } from 'chart.js';
+import { Bar } from 'react-chartjs-2';
 import axios from 'axios';
 
 // Регистрация компонентов Chart.js
@@ -21,34 +29,46 @@ ChartJS.register(
   Legend
 );
 
-function Analytics() {
-  const [analytics, setAnalytics] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const Analytics = () => {
+  const [ratings, setRatings] = useState({
+    labels: [],
+    data: [],
+  });
 
   useEffect(() => {
-    const fetchAnalytics = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/analytics');
-        setAnalytics(response.data);
-        setLoading(false);
-      } catch (err) {
-        setError('Ошибка при загрузке данных аналитики');
-        setLoading(false);
+        const response = await axios.get('http://localhost:5000/api/analytics/ratings');
+        const { ratings_by_coffee } = response.data;
+        
+        setRatings({
+          labels: ratings_by_coffee.map(item => item.coffee_type),
+          data: ratings_by_coffee.map(item => item.average_rating),
+        });
+      } catch (error) {
+        console.error('Error fetching analytics data:', error);
       }
     };
 
-    fetchAnalytics();
+    fetchData();
   }, []);
 
   const chartData = {
-    labels: analytics.map(item => item.method),
+    labels: ratings.labels,
     datasets: [
       {
-        label: 'Количество запросов',
-        data: analytics.map(item => item.count),
-        backgroundColor: 'rgba(52, 152, 219, 0.5)',
-        borderColor: 'rgba(52, 152, 219, 1)',
+        label: 'Средняя оценка',
+        data: ratings.data,
+        backgroundColor: [
+          'rgba(121, 85, 72, 0.6)',
+          'rgba(141, 110, 99, 0.6)',
+          'rgba(165, 138, 127, 0.6)',
+        ],
+        borderColor: [
+          'rgb(121, 85, 72)',
+          'rgb(141, 110, 99)',
+          'rgb(165, 138, 127)',
+        ],
         borderWidth: 1,
       },
     ],
@@ -62,70 +82,61 @@ function Analytics() {
       },
       title: {
         display: true,
-        text: 'Популярность методов заваривания',
+        text: 'Средние оценки по типам кофе',
       },
     },
     scales: {
       y: {
         beginAtZero: true,
-        ticks: {
-          stepSize: 1,
-        },
+        max: 5,
       },
     },
   };
 
-  if (loading) {
-    return (
-      <div className="card">
-        <p>Загрузка данных...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="card">
-        <p className="error">{error}</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="analytics">
-      <div className="card">
-        <h1 className="card-title">Аналитика использования</h1>
-        <p>
-          На этой странице вы можете увидеть статистику использования различных методов заваривания.
-          Данные обновляются в реальном времени.
-        </p>
-      </div>
+    <Box>
+      <Typography variant="h4" gutterBottom>
+        Аналитика
+      </Typography>
 
-      <div className="chart-container">
-        <Bar data={chartData} options={chartOptions} />
-      </div>
+      <Grid container spacing={3}>
+        {/* График оценок */}
+        <Grid item xs={12}>
+          <Paper sx={{ p: 2 }}>
+            <Bar data={chartData} options={chartOptions} />
+          </Paper>
+        </Grid>
 
-      <div className="card">
-        <h2 className="card-title">Статистика по методам</h2>
-        <table className="stats-table">
-          <thead>
-            <tr>
-              <th>Метод заваривания</th>
-              <th>Количество запросов</th>
-            </tr>
-          </thead>
-          <tbody>
-            {analytics.map((item, index) => (
-              <tr key={index}>
-                <td>{item.method}</td>
-                <td>{item.count}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+        {/* Статистика по типам кофе */}
+        <Grid item xs={12}>
+          <Paper sx={{ p: 2 }}>
+            <Typography variant="h6" gutterBottom>
+              Статистика по типам кофе
+            </Typography>
+            <Grid container spacing={2}>
+              {ratings.labels.map((label, index) => (
+                <Grid item xs={12} sm={6} md={4} key={index}>
+                  <Card>
+                    <CardContent>
+                      <Typography variant="subtitle1">
+                        {label}
+                      </Typography>
+                      <Typography variant="h4">
+                        {ratings.data[index].toFixed(1)}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        Средняя оценка
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Paper>
+        </Grid>
+      </Grid>
+    </Box>
   );
-}
+};
 
 export default Analytics; 

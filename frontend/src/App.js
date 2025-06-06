@@ -1,35 +1,59 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import Home from './pages/Home';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import Box from '@mui/material/Box';
+
+// Компоненты
+import Navbar from './components/Navbar';
+import Dashboard from './pages/Dashboard';
 import Analytics from './pages/Analytics';
-import './App.css';
+import Settings from './pages/Settings';
+
+// Создание темы
+const theme = createTheme({
+  palette: {
+    mode: 'light',
+    primary: {
+      main: '#795548', // Coffee brown
+    },
+    secondary: {
+      main: '#8d6e63', // Lighter coffee brown
+    },
+    background: {
+      default: '#f5f5f5',
+    },
+  },
+  typography: {
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    h1: {
+      fontSize: '2.5rem',
+      fontWeight: 500,
+    },
+    h2: {
+      fontSize: '2rem',
+      fontWeight: 500,
+    },
+  },
+});
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <nav className="navbar">
-          <div className="nav-brand">
-            <Link to="/">Coffee Grinder Bot</Link>
-          </div>
-          <ul className="nav-links">
-            <li><Link to="/">Главная</Link></li>
-            <li><Link to="/analytics">Аналитика</Link></li>
-          </ul>
-        </nav>
-
-        <main className="container">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/analytics" element={<Analytics />} />
-          </Routes>
-        </main>
-
-        <footer className="footer">
-          <p>&copy; 2024 Coffee Grinder Bot. Все права защищены.</p>
-        </footer>
-      </div>
-    </Router>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router>
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+          <Navbar />
+          <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/settings" element={<Settings />} />
+            </Routes>
+          </Box>
+        </Box>
+      </Router>
+    </ThemeProvider>
   );
 }
 
